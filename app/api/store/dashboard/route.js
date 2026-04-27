@@ -24,7 +24,7 @@ export async function GET(request){
             ratings,
             totalOrders: orders.length,
             totalEarnings: Math.round(orders.reduce((acc, order)=>acc+ order.total, 0)),
-            totatlProducts: products.length
+            totalProducts: products.length
         }
         
         return NextResponse.json({dashboardData});

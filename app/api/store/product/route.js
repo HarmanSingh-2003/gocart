@@ -10,7 +10,7 @@ export async function POST(request){
         const {userId} = getAuth(request)
         const storeId= await authSeller(userId)
 
-        if(storeId){
+        if(!storeId){
             return NextResponse.json({error: 'not authorized'},{status: 401})
         }
 
@@ -21,9 +21,9 @@ export async function POST(request){
         const mrp= Number(formData.get("mrp"))
         const price= Number(formData.get("price"))
         const category= formData.get("category")
-        const images= formData.get("images")
+        const images= formData.getAll("images")
 
-        if(!name || !description || !mrp || !price || !category || !images.length <1){
+        if(!name || !description || !mrp || !price || !category || images.length <1){
             return NextResponse.json({error: 'missing product details'},{status: 400})
         }
 
@@ -57,11 +57,11 @@ export async function POST(request){
             }
         })
 
-        return NextResponse.json({messsage: "Product added successfully"})
+        return NextResponse.json({message: "Product added successfully"})
          
     } catch(error){
         console.error(error);
-        return NextResponse.json({error: error.code || error.messsage},{status: 400})
+        return NextResponse.json({error: error.code || error.message},{status: 400})
     }
 }
 
@@ -71,7 +71,7 @@ export async function GET(request){
         const {userId} = getAuth(request)
         const storeId= await authSeller(userId)
 
-        if(storeId){
+        if(!storeId){
             return NextResponse.json({error: 'not authorized'},{status: 401})
         }
         const products= await prisma.product.findMany({where: {storeId}})

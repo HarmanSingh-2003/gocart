@@ -2,6 +2,7 @@
 import Banner from "@/components/Banner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Chatbot from "@/components/Chatbot";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "@/lib/features/product/productSlice";
@@ -36,12 +37,12 @@ export default function PublicLayout({ children }) {
         }
     },[cartItems])
 
-
     return (
         <>
             <Banner />
             <Navbar />
             {children}
+            <Chatbot />
             <Footer />
         </>
     );

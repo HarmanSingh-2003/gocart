@@ -23,15 +23,15 @@ export async function POST(request) {
             messages: [
                 {
                     role: "system",
-                    content: `You are an expert e-commerce pricing analyst with deep knowledge of market prices across platforms like Amazon, Flipkart, and other major retailers. A seller wants to list a new product and needs pricing guidance. Based on your knowledge of real market prices, suggest a competitive price. Respond ONLY with raw JSON, no markdown, no explanation. Use this schema: { "min": number, "max": number, "suggested": number, "reason": string }`
+                    content: `You are an expert e-commerce pricing analyst with deep knowledge of market prices across platforms like Amazon India and Flipkart. A seller wants to list a new product and needs pricing guidance. Based on your knowledge of real Indian market prices, suggest a competitive price. Always respond with prices in Indian Rupees (INR) only. Never use USD or dollars. Respond ONLY with raw JSON, no markdown, no explanation. Use this schema: { "min": number, "max": number, "suggested": number, "reason": string }`
                 },
                 {
                     role: "user",
                     content: `Product Name: ${name}
-Category: ${category}
-Description: ${description || 'Not provided'}
+                    Category: ${category}
+                    Description: ${description || 'Not provided'}
 
-Based on your knowledge of current market prices on platforms like Amazon and Flipkart, what is a competitive price range and recommended selling price for this product? Consider typical discounts and competitive pricing strategies.`
+                    Based on your knowledge of current market prices on platforms like Amazon India and Flipkart, what is a competitive price range and recommended selling price for this product in Indian Rupees (INR)? Consider typical discounts and competitive pricing strategies.`
                 }
             ]
         })

@@ -17,6 +17,7 @@ export default function StoreAddProduct() {
         description: "",
         mrp: "",
         price: "",
+        minPrice: "",
         category: "",
     })
     const [loading, setLoading] = useState(false)
@@ -125,6 +126,9 @@ export default function StoreAddProduct() {
             formData.append('description', productInfo.description)
             formData.append('mrp', productInfo.mrp)
             formData.append('price', productInfo.price)
+            if (productInfo.minPrice) {
+                formData.append('minPrice', productInfo.minPrice)
+            }
             formData.append('category', productInfo.category)
 
             Object.keys(images).forEach((key) => {
@@ -135,7 +139,7 @@ export default function StoreAddProduct() {
             const { data } = await axios.post('/api/store/product', formData, { headers: { Authorization: `Bearer ${token}` } })
             toast.success(data.message)
 
-            setProductInfo({ name: "", description: "", mrp: 0, price: 0, category: "" })
+            setProductInfo({ name: "", description: "", mrp: 0, price: 0, minPrice: "", category: "" })
             setImages({ 1: null, 2: null, 3: null, 4: null })
             setPricingSuggestion(null)
         } catch (error) {
@@ -179,7 +183,12 @@ export default function StoreAddProduct() {
                         Offer Price (₹)
                         <input type="number" name="price" onChange={onChangeHandler} value={productInfo.price} placeholder="0" className="w-full max-w-45 p-2 px-4 outline-none border border-slate-200 rounded" required />
                     </label>
+                    <label className="flex flex-col gap-2">
+                        Min Negotiable Price (₹)
+                        <input type="number" name="minPrice" onChange={onChangeHandler} value={productInfo.minPrice} placeholder="Optional" className="w-full max-w-45 p-2 px-4 outline-none border border-slate-200 rounded" />
+                    </label>
                 </div>
+                <p className="text-xs text-slate-400 -mt-2">If set, customers can negotiate price down to this amount via the AI Bargain chat. Leave empty to disable bargaining for this product.</p>
 
                 {/* AI Pricing Button */}
                 <button

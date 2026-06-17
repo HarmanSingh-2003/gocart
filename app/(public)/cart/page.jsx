@@ -3,6 +3,8 @@ import Counter from "@/components/Counter";
 import OrderSummary from "@/components/OrderSummary";
 import PageTitle from "@/components/PageTitle";
 import { deleteItemFromCart } from "@/lib/features/cart/cartSlice";
+import { useAuth } from "@clerk/nextjs";
+import axios from "axios";
 import { Trash2Icon } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -11,14 +13,29 @@ import { useDispatch, useSelector } from "react-redux";
 export default function Cart() {
 
     const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$';
-    
+
     const { cartItems } = useSelector(state => state.cart);
     const products = useSelector(state => state.product.list);
+    const { getToken, isSignedIn } = useAuth();
 
     const dispatch = useDispatch();
 
     const [cartArray, setCartArray] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
+    const [negotiatedPrices, setNegotiatedPrices] = useState({}); // productId -> finalPrice
+
+    const fetchNegotiatedPrices = async () => {
+        if (!isSignedIn) return
+        try {
+            const token = await getToken();
+            const { data } = await axios.get('/api/negotiate', { headers: { Authorization: `Bearer ${token}` } });
+            const map = {};
+            (data.negotiations || []).forEach(n => { map[n.productId] = n.finalPrice });
+            setNegotiatedPrices(map);
+        } catch (error) {
+            // silently ignore - bargain prices are a bonus feature
+        }
+    }
 
     const createCartArray = () => {
         setTotalPrice(0);
@@ -26,11 +43,15 @@ export default function Cart() {
         for (const [key, value] of Object.entries(cartItems)) {
             const product = products.find(product => product.id === key);
             if (product) {
+                const effectivePrice = negotiatedPrices[key] ?? product.price;
                 cartArray.push({
                     ...product,
+                    price: effectivePrice,
+                    originalPrice: product.price,
+                    isNegotiated: negotiatedPrices[key] != null,
                     quantity: value,
                 });
-                setTotalPrice(prev => prev + product.price * value);
+                setTotalPrice(prev => prev + effectivePrice * value);
             }
         }
         setCartArray(cartArray);
@@ -41,10 +62,14 @@ export default function Cart() {
     }
 
     useEffect(() => {
+        fetchNegotiatedPrices();
+    }, [isSignedIn]);
+
+    useEffect(() => {
         if (products.length > 0) {
             createCartArray();
         }
-    }, [cartItems, products]);
+    }, [cartItems, products, negotiatedPrices]);
 
     return cartArray.length > 0 ? (
         <div className="min-h-screen mx-6 text-slate-800">
@@ -75,7 +100,15 @@ export default function Cart() {
                                             <div>
                                                 <p className="max-sm:text-sm">{item.name}</p>
                                                 <p className="text-xs text-slate-500">{item.category}</p>
-                                                <p>{currency}{item.price}</p>
+                                                {item.isNegotiated ? (
+                                                    <p className="flex items-center gap-2">
+                                                        <span className="text-slate-400 line-through text-xs">{currency}{item.originalPrice}</span>
+                                                        <span className="text-green-600 font-medium">{currency}{item.price}</span>
+                                                        <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">Bargain price</span>
+                                                    </p>
+                                                ) : (
+                                                    <p>{currency}{item.price}</p>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="text-center">

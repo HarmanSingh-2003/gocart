@@ -48,13 +48,28 @@ export async function POST(request) {
         // Group orders by storeId using a Map
         const orderbyStore = new Map()
 
+        // Fetch accepted negotiations for this user, for the items being ordered
+        const acceptedNegotiations = await prisma.negotiation.findMany({
+            where: {
+                userId,
+                status: "ACCEPTED",
+                productId: { in: items.map(item => item.id) }
+            }
+        })
+        const negotiatedPriceMap = new Map(
+            acceptedNegotiations.map(n => [n.productId, n.finalPrice])
+        )
+
         for (const item of items) {
             const product = await prisma.product.findUnique({ where: { id: item.id } })
             const storeId = product.storeId
+            const effectivePrice = negotiatedPriceMap.has(item.id)
+                ? negotiatedPriceMap.get(item.id)
+                : product.price
             if (!orderbyStore.has(storeId)) {
                 orderbyStore.set(storeId, [])
             }
-            orderbyStore.get(storeId).push({ ...item, price: product.price })
+            orderbyStore.get(storeId).push({ ...item, price: effectivePrice })
         }
 
         let orderIds = [];
@@ -95,6 +110,18 @@ export async function POST(request) {
                 }
             })
             orderIds.push(order.id)
+        }
+
+        // Mark used negotiations as consumed so they can't be reapplied to future orders
+        if (acceptedNegotiations.length > 0) {
+            await prisma.negotiation.updateMany({
+                where: {
+                    userId,
+                    productId: { in: acceptedNegotiations.map(n => n.productId) },
+                    status: "ACCEPTED"
+                },
+                data: { status: "REJECTED" } // consumed; REJECTED reused as "no longer active"
+            })
         }
 
         if(paymentMethod==='STRIPE'){

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import Counter from "./Counter";
+import NegotiateWidget from "./NegotiateWidget";
 import { useDispatch, useSelector } from "react-redux";
 
 const ProductDetails = ({ product }) => {
@@ -69,6 +70,7 @@ const ProductDetails = ({ product }) => {
                         {!cart[productId] ? 'Add to Cart' : 'View Cart'}
                     </button>
                 </div>
+                <NegotiateWidget product={product} />
                 <hr className="border-gray-300 my-5" />
                 <div className="flex flex-col gap-4 text-slate-500">
                     <p className="flex gap-3"> <EarthIcon className="text-slate-400" /> Free shipping worldwide </p>

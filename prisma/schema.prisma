@@ -26,6 +26,7 @@ model Product {
   description String
   mrp         Float
   price       Float
+  minPrice    Float? 
   images      String[]
   category    String
   inStock     Boolean     @default(true)
@@ -35,6 +36,7 @@ model Product {
   orderItems  OrderItem[]
   store       Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
   rating      Rating[]
+  negotiations Negotiation[]  
 }
 
 model Order {
@@ -138,4 +140,27 @@ enum OrderStatus {
 enum PaymentMethod {
   COD
   STRIPE
+}
+
+model Negotiation {
+  id           String            @id @default(cuid())
+  userId       String
+  productId    String
+  listedPrice  Float
+  minPrice     Float
+  currentOffer Float             @default(0)
+  round        Int               @default(0)
+  status       NegotiationStatus @default(ONGOING)
+  finalPrice   Float?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  product      Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
+
+enum NegotiationStatus {
+  ONGOING
+  ACCEPTED
+  REJECTED
 }

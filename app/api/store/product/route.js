@@ -20,11 +20,17 @@ export async function POST(request){
         const description= formData.get("description")
         const mrp= Number(formData.get("mrp"))
         const price= Number(formData.get("price"))
+        const minPriceRaw = formData.get("minPrice")
+        const minPrice = minPriceRaw ? Number(minPriceRaw) : null
         const category= formData.get("category")
         const images= formData.getAll("images")
 
         if(!name || !description || !mrp || !price || !category || images.length <1){
             return NextResponse.json({error: 'missing product details'},{status: 400})
+        }
+
+        if(minPrice != null && (minPrice <= 0 || minPrice > price)){
+            return NextResponse.json({error: 'minimum negotiable price must be greater than 0 and not exceed offer price'},{status: 400})
         }
 
         // uploading Images to Imagekit
@@ -51,6 +57,7 @@ export async function POST(request){
                 description,
                 mrp,
                 price,
+                minPrice,
                 category,
                 images: imagesUrl,
                 storeId

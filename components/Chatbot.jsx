@@ -9,7 +9,7 @@ export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false)
     const [input, setInput] = useState('')
     const [messages, setMessages] = useState([
-        { role: 'assistant', content: 'Hi! I\'m your GoCart shopping assistant 🛒 Ask me anything like "suggest something under $50" or "what\'s good for music lovers?"' }
+        { role: 'assistant', content: 'Hi! I\'m your GoCart shopping assistant 🛒 Ask me anything like "suggest something under ₹500" or "what\'s good for music lovers?"' }
     ])
     const [loading, setLoading] = useState(false)
 

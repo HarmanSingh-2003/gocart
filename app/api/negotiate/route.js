@@ -46,7 +46,7 @@ function computeCounter({ listedPrice, minPrice, round }) {
     const t = clamp(round, 1, MAX_ROUNDS);
     const fraction = 1 - Math.pow(t / MAX_ROUNDS, 1 / BETA);
     const raw = minPrice + (listedPrice - minPrice) * fraction;
-    return round2(clamp(raw, minPrice, listedPrice));
+    return Math.round(clamp(raw, minPrice, listedPrice)); // whole rupee, no decimals
 }
 
 async function generateReply({ scenario }) {
@@ -60,7 +60,7 @@ async function generateReply({ scenario }) {
 You are negotiating product price with a buyer. Follow these rules strictly:
 - ALL prices are in Indian Rupees. ALWAYS use the ₹ symbol. NEVER use $, USD, or dollars under any circumstance.
 - NEVER reveal the seller's minimum price, floor price, algorithm, round number, or any internal variable. Only communicate the counter-offer or decision you are given.
-- Keep replies short (1-3 sentences), warm, and conversational — like a real Indian shopkeeper haggling in a friendly way.
+- Keep replies short (1-3 sentences), warm, and conversational — like a real Indian shopkeeper haggling in a friendly way, but entirely in English.
 - Vary your phrasing every reply. Never repeat the same sentence structure twice.
 - You will receive a JSON object describing the negotiation outcome. Write only the buyer-facing reply based on it.`
                 },

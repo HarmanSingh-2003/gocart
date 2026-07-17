@@ -1,6 +1,6 @@
 import { openai } from "@/configs/openai";
 import prisma from "@/lib/prisma";
-import { getAuth } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -100,7 +100,7 @@ OTHER RULES:
 
 export async function POST(request) {
     try {
-        const { userId } = getAuth(request);
+        const { userId } = await auth();
         if (!userId) {
             return NextResponse.json({ error: "not authorized" }, { status: 401 });
         }
@@ -232,7 +232,7 @@ export async function POST(request) {
 
 export async function GET(request) {
     try {
-        const { userId } = getAuth(request);
+        const { userId } = await auth();
         if (!userId) {
             return NextResponse.json({ error: "not authorized" }, { status: 401 });
         }
